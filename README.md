@@ -1,154 +1,171 @@
-# Ejercicio 1 — Análisis de Sentimientos en Reseñas de Productos
+# Analisis de Sentimientos en Resenas de Amazon
 
-Proyecto en Python para reemplazar el flujo propuesto en KNIME usando un **Pipeline de scikit-learn**: limpieza básica, TF-IDF, Naive Bayes, evaluación y guardado del modelo.
+Proyecto universitario en Python para clasificar resenas de productos de Amazon como positivas o negativas. El flujo usa `scikit-learn`, `TF-IDF` y `Multinomial Naive Bayes`, siguiendo la metodologia CRISP-DM.
 
-## ¿Por qué Pipeline y no PyTorch/TensorFlow?
+## Objetivo
 
-Para este ejercicio, la opción más alineada con el enunciado es **Pipeline + TF-IDF + Naive Bayes**. Es rápida, explicable, fácil de evaluar y reproduce casi exactamente los nodos de KNIME: Text Processing, TF-IDF, Naive Bayes Learner, Scorer y Model Writer.
+Construir y evaluar un modelo de analisis de sentimientos que permita identificar si una resena de producto expresa una opinion positiva o negativa.
 
-PyTorch/TensorFlow servirían para modelos más avanzados, pero requieren más tiempo, GPU opcional, embeddings y más ajustes. Para entregar el ejercicio CRISP-DM, esta solución es más limpia.
+## Dataset
+
+Dataset usado: `bittlingmayer/amazonreviews` de Kaggle.
+
+El dataset viene en formato FastText:
+
+- `__label__1`: resena negativa.
+- `__label__2`: resena positiva.
+
+Los archivos principales se descargan y descomprimen en `data/raw/`:
+
+- `train.ft.txt`
+- `test.ft.txt`
+
+## Metodologia CRISP-DM
+
+1. Comprension del negocio: las resenas afectan reputacion, ventas, devoluciones y decisiones de mejora de productos.
+2. Comprension de datos: se revisa distribucion de clases, longitud promedio y ejemplos de resenas positivas y negativas.
+3. Preparacion de datos: se leen archivos FastText, se transforman etiquetas y se eliminan nulos/duplicados.
+4. Modelado: se entrena un `Pipeline` con `TfidfVectorizer` y `MultinomialNB`.
+5. Evaluacion: se calculan Accuracy, Precision, Recall, F1-score y Matriz de Confusion.
+6. Despliegue: se guarda el pipeline completo con `joblib` para usarlo desde terminal con nuevas resenas.
 
 ## Estructura
 
 ```text
 amazon_sentiment_project/
 ├── data/
-│   ├── raw/                 # dataset descargado desde Kaggle
+│   ├── raw/
 │   └── processed/
-├── models/                  # modelo .joblib
+├── models/
 ├── reports/
-│   ├── metrics.json
-│   ├── classification_report.txt
-│   └── figures/confusion_matrix.png
 ├── scripts/
 │   ├── eda.py
 │   ├── train.py
-│   └── predict.py
-├── src/amazon_sentiment/
-│   ├── data.py
-│   ├── download_data.py
-│   ├── evaluate.py
-│   └── model.py
+│   ├── predict.py
+│   └── decompress_bz2.py
+├── src/
+│   └── amazon_sentiment/
+│       ├── data.py
+│       ├── download_data.py
+│       ├── evaluate.py
+│       └── model.py
 ├── requirements.txt
-└── pyproject.toml
+├── pyproject.toml
+└── README.md
 ```
 
-## 1. Crear entorno
+## Instalacion
 
-```bash
-cd amazon_sentiment_project
+Crear y activar entorno virtual:
+
+```powershell
 python -m venv .venv
+.\.venv\Scripts\activate
 ```
 
-Windows:
+Instalar dependencias:
 
-```bash
-.venv\Scripts\activate
-```
-
-macOS/Linux:
-
-```bash
-source .venv/bin/activate
-```
-
-## 2. Instalar dependencias
-
-```bash
+```powershell
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 pip install -e .
 ```
 
-## 3. Configurar Kaggle
+## Configuracion de Kaggle API
 
-1. En Kaggle: Account → Create New API Token.
-2. Descarga `kaggle.json`.
-3. Colócalo en:
+En Kaggle, ir a Account y crear un API Token. Eso descarga un archivo `kaggle.json`.
 
-Windows:
+Opcion recomendada para este proyecto: definir la variable `KAGGLE_API_TOKEN` con el contenido JSON del token:
 
-```text
-C:\Users\TU_USUARIO\.kaggle\kaggle.json
+```powershell
+$env:KAGGLE_API_TOKEN = '{"username":"TU_USUARIO","key":"TU_API_KEY"}'
 ```
 
-macOS/Linux:
+Tambien puedes definirla como ruta al archivo:
 
-```text
-~/.kaggle/kaggle.json
+```powershell
+$env:KAGGLE_API_TOKEN = "C:\Users\TU_USUARIO\.kaggle\kaggle.json"
 ```
 
-En macOS/Linux ejecuta:
+No subas `kaggle.json` al repositorio.
 
-```bash
-chmod 600 ~/.kaggle/kaggle.json
+## Comandos de Ejecucion
+
+Descargar y descomprimir dataset:
+
+```powershell
+python src\amazon_sentiment\download_data.py
 ```
 
-## 4. Descargar dataset automáticamente
+Exploracion de datos:
 
-```bash
-python -m amazon_sentiment.download_data
+```powershell
+python scripts\eda.py --limit 10000
 ```
 
-Esto descarga `bittlingmayer/amazonreviews` y descomprime los archivos en `data/raw/`.
+Entrenamiento recomendado para la entrega:
 
-Para probar el flujo sin Kaggle:
-
-```bash
-python -m amazon_sentiment.download_data --tiny-sample
+```powershell
+python scripts\train.py --limit-train 50000 --limit-test 10000
 ```
 
-## 5. Comprensión de datos / EDA
+Prediccion desde terminal:
 
-```bash
-python scripts/eda.py --limit 10000
+```powershell
+python scripts\predict.py "This product is amazing"
 ```
 
-## 6. Entrenar modelo
+## Salidas Generadas
 
-Entrenamiento recomendado para empezar:
+Despues del EDA:
 
-```bash
-python scripts/train.py --limit-train 200000 --limit-test 50000
-```
+- `reports/eda_summary.txt`
 
-Usar todo el dataset:
-
-```bash
-python scripts/train.py --limit-train 0 --limit-test 0
-```
-
-Salidas:
+Despues del entrenamiento:
 
 - `models/sentiment_pipeline.joblib`
+- `reports/metrics.txt`
 - `reports/metrics.json`
 - `reports/classification_report.txt`
-- `reports/figures/confusion_matrix.png`
+- `reports/confusion_matrix.png`
 
-## 7. Probar predicciones
+## Explicacion de Metricas
 
-```bash
-python scripts/predict.py "This product is excellent and arrived fast"
-python scripts/predict.py "Very bad quality, I want a refund"
+- Accuracy: proporcion total de predicciones correctas.
+- Precision: de las resenas predichas como positivas, cuantas realmente eran positivas.
+- Recall: de las resenas positivas reales, cuantas encontro correctamente el modelo.
+- F1-score: promedio armonico entre Precision y Recall; resume el equilibrio entre ambas.
+- Matriz de Confusion: tabla que muestra aciertos y errores por clase: negativos correctos, positivos correctos y confusiones entre clases.
+
+## Resultados Obtenidos
+
+Con el comando:
+
+```powershell
+python scripts\train.py --limit-train 50000 --limit-test 10000
 ```
 
-## Fases CRISP-DM cubiertas
+Se obtuvo:
 
-1. **Comprensión del negocio:** las reseñas influyen en reputación, intención de compra, devoluciones y priorización de mejoras.
-2. **Comprensión de los datos:** `scripts/eda.py` explora tamaño, distribución de clases, ejemplos y longitud de reseñas.
-3. **Preparación de datos:** se eliminan nulos/duplicados y se transforma texto con TF-IDF.
-4. **Modelado:** `MultinomialNB` dentro de un `Pipeline`.
-5. **Evaluación:** Accuracy, Precision, Recall, F1-score y Matriz de Confusión.
-6. **Despliegue:** guardado del pipeline completo con `joblib` para reutilizarlo en predicciones.
+- Train: 50000 resenas.
+- Test: 10000 resenas.
+- Clases balanceadas: positivas y negativas.
+- Accuracy aproximado: 0.87.
+- F1-score aproximado: 0.87.
 
-## Petición recomendada para Codex
+Estos resultados son adecuados para un modelo base clasico con TF-IDF + Naive Bayes.
 
-Copia y pega esto en Codex:
+## Limitaciones
 
-```text
-Tengo un proyecto Python para el Ejercicio 1: Análisis de Sentimientos en Amazon Reviews con metodología CRISP-DM. Quiero que revises el repositorio y verifiques que el flujo completo funciona: instalación, descarga con Kaggle API, EDA, entrenamiento con TF-IDF + Multinomial Naive Bayes, evaluación con accuracy/precision/recall/F1/matriz de confusión y predicción con modelo guardado. Si algo falla, corrígelo manteniendo una estructura simple y documentada. No cambies el objetivo del ejercicio ni reemplaces el modelo base salvo que propongas una mejora opcional separada.
-```
+- El dataset esta en ingles, por lo que el modelo funciona mejor con resenas en ingles.
+- Puede fallar o perder confianza con textos en espanol.
+- Naive Bayes es rapido y explicable, pero no captura contexto profundo como sarcasmo, negaciones complejas o significado semantico avanzado.
+- El modelo depende de la calidad y representatividad del dataset usado.
 
-## Mejora opcional
+## Mejoras Futuras
 
-Después de entregar la versión base, puedes agregar un segundo modelo con `LogisticRegression` o un modelo Transformer. Compara ambos contra Naive Bayes usando las mismas métricas.
+- Comparar con `LogisticRegression` o `LinearSVC`.
+- Probar embeddings o modelos Transformer.
+- Agregar soporte para resenas en espanol con un dataset adecuado o traduccion previa.
+- Crear una interfaz web simple para predicciones.
+- Guardar experimentos con diferentes tamanos de entrenamiento y comparar metricas.

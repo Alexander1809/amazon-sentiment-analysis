@@ -1,0 +1,20 @@
+Metricas del modelo
+===================
+Accuracy:  0.8661
+Precision: 0.8607
+Recall:    0.8814
+F1-score:  0.8709
+
+Reporte de clasificacion
+========================
+              precision    recall  f1-score   support
+
+    negative       0.87      0.85      0.86      4875
+    positive       0.86      0.88      0.87      5125
+
+    accuracy                           0.87     10000
+   macro avg       0.87      0.87      0.87     10000
+weighted avg       0.87      0.87      0.87     10000
+
+Matriz de confusion [[TN, FP], [FN, TP]]
+[[4144, 731], [608, 4517]]

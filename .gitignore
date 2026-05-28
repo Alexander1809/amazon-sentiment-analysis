@@ -2,9 +2,13 @@ __pycache__/
 *.pyc
 .env
 .kaggle/
+kaggle.json
+.venv/
+*.egg-info/
 data/raw/*
 data/processed/*
 models/*
+reports/*.png
 reports/figures/*
 !data/raw/.gitkeep
 !data/processed/.gitkeep
