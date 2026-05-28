@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "amazon-sentiment-crispdm"
+version = "1.0.0"
+description = "Ejercicio 1: análisis de sentimientos en reseñas Amazon con TF-IDF + Naive Bayes"
+requires-python = ">=3.10"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
