@@ -1,0 +1,5 @@
+Metadata-Version: 2.4
+Name: amazon-sentiment-crispdm
+Version: 1.0.0
+Summary: Ejercicio 1: análisis de sentimientos en reseñas Amazon con TF-IDF + Naive Bayes
+Requires-Python: >=3.10

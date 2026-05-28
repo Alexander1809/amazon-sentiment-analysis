@@ -1,0 +1,11 @@
+README.md
+pyproject.toml
+src/amazon_sentiment/__init__.py
+src/amazon_sentiment/data.py
+src/amazon_sentiment/download_data.py
+src/amazon_sentiment/evaluate.py
+src/amazon_sentiment/model.py
+src/amazon_sentiment_crispdm.egg-info/PKG-INFO
+src/amazon_sentiment_crispdm.egg-info/SOURCES.txt
+src/amazon_sentiment_crispdm.egg-info/dependency_links.txt
+src/amazon_sentiment_crispdm.egg-info/top_level.txt

@@ -1,0 +1,17 @@
+{
+  "accuracy": 0.5,
+  "precision": 0.0,
+  "recall": 0.0,
+  "f1_score": 0.0,
+  "classification_report": "              precision    recall  f1-score   support\n\n    negative       0.50      1.00      0.67         2\n    positive       0.00      0.00      0.00         2\n\n    accuracy                           0.50         4\n   macro avg       0.25      0.50      0.33         4\nweighted avg       0.25      0.50      0.33         4\n",
+  "confusion_matrix": [
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      0
+    ]
+  ]
+}
